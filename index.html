@@ -99,8 +99,11 @@
     let currentBdpBytes = 0;
 
     function calculateBDP() {
-      const bandwidth = document.getElementById('bandwidth').value || 600;
-      const rtt = document.getElementById('rtt').value || 170;
+      const bandwidthValue = document.getElementById('bandwidth').value;
+      const rttValue = document.getElementById('rtt').value;
+
+      const bandwidth = bandwidthValue === '' ? 600 : bandwidthValue;
+      const rtt = rttValue === '' ? 170 : rttValue;
 
       const bps = bandwidth * 1000000;
       const rttSeconds = rtt / 1000;
@@ -129,8 +132,7 @@
     }
 
     function buildScript() {
-      return `#!/bin/bash
-echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+      return `echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
 echo "net.core.wmem_max = ${currentBdpBytes}" >> /etc/sysctl.conf
 echo "net.core.rmem_max = ${currentBdpBytes}" >> /etc/sysctl.conf
