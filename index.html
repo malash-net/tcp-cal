@@ -70,6 +70,10 @@
       <label for="rtt">RTT (毫秒):</label>
       <input type="number" id="rtt" placeholder="例如: 170">
     </div>
+    <div class="input-group">
+      <label for="mem">内存 (MB，可选):</label>
+      <input type="number" id="mem" placeholder="留空则不限制">
+    </div>
     <button onclick="calculateBDP()">计算</button>
     <div class="result" id="result" style="display: none;">
       <h3>计算结果：</h3>
@@ -94,13 +98,16 @@
   <script>
     let currentBdpBytes = 0;
     let currentBufferBytes = 0;
+    let currentMemMb = 0;
 
     function calculateBDP() {
       const bandwidthValue = document.getElementById('bandwidth').value;
       const rttValue = document.getElementById('rtt').value;
+      const memValue = document.getElementById('mem').value;
 
       const bandwidth = bandwidthValue === '' ? 600 : bandwidthValue;
       const rtt = rttValue === '' ? 170 : rttValue;
+      currentMemMb = memValue === '' ? 0 : Number(memValue);
 
       const bps = bandwidth * 1000000;
       const rttSeconds = rtt / 1000;
@@ -108,8 +115,19 @@
       const bdpBits = bps * rttSeconds;
       currentBdpBytes = Math.ceil(bdpBits / 8);
       currentBufferBytes = currentBdpBytes * 2;
+      if (currentMemMb > 0) {
+        currentBufferBytes = Math.min(currentBufferBytes, memCapBytes(currentMemMb));
+      }
 
       updateDisplay();
+    }
+
+    function memCapBytes(memMb) {
+      if (memMb < 512) return 8 * 1024 * 1024;
+      if (memMb < 1024) return 16 * 1024 * 1024;
+      if (memMb < 2048) return 32 * 1024 * 1024;
+      if (memMb < 4096) return 64 * 1024 * 1024;
+      return 128 * 1024 * 1024;
     }
 
     function adjustValue(mebibytes) {
