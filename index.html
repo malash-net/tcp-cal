@@ -119,6 +119,7 @@
     }
 
     function updateDisplay() {
+      currentBufferBytes = Math.max(87380, currentBufferBytes);
       document.getElementById('bdpBits').textContent = (currentBdpBytes * 8);
       document.getElementById('bdpBytes').textContent = currentBdpBytes;
       document.getElementById('bufferBytes').textContent = currentBufferBytes;
