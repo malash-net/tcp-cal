@@ -75,6 +75,7 @@
       <h3>计算结果：</h3>
       <p>BDP (比特) = <span id="bdpBits"></span> bits</p>
       <p>BDP (字节) = <span id="bdpBytes"></span> bytes</p>
+      <p>缓冲 (2×BDP) = <span id="bufferBytes"></span> bytes</p>
       <div class="adjustment">
         <button onclick="adjustValue(-1)">-1 MiB</button>
         <button onclick="adjustValue(-5)">-5 MiB</button>
@@ -92,6 +93,7 @@
 
   <script>
     let currentBdpBytes = 0;
+    let currentBufferBytes = 0;
 
     function calculateBDP() {
       const bandwidthValue = document.getElementById('bandwidth').value;
@@ -105,19 +107,21 @@
 
       const bdpBits = bps * rttSeconds;
       currentBdpBytes = Math.ceil(bdpBits / 8);
+      currentBufferBytes = currentBdpBytes * 2;
 
       updateDisplay();
     }
 
     function adjustValue(mebibytes) {
-      const adjustment = mebibytes * 1024 * 1024; // 转换 MiB 为字节
-      currentBdpBytes = Math.max(0, currentBdpBytes + adjustment);
+      const adjustment = mebibytes * 1024 * 1024;
+      currentBufferBytes = Math.max(0, currentBufferBytes + adjustment);
       updateDisplay();
     }
 
     function updateDisplay() {
       document.getElementById('bdpBits').textContent = (currentBdpBytes * 8);
       document.getElementById('bdpBytes').textContent = currentBdpBytes;
+      document.getElementById('bufferBytes').textContent = currentBufferBytes;
       document.getElementById('settingsContent').textContent = buildSettings();
       document.getElementById('scriptContent').textContent = buildScript();
       document.getElementById('result').style.display = 'block';
@@ -126,10 +130,10 @@
     function buildSettings() {
       return `net.core.default_qdisc = fq
 net.ipv4.tcp_congestion_control = bbr
-net.core.wmem_max = ${currentBdpBytes}
-net.core.rmem_max = ${currentBdpBytes}
-net.ipv4.tcp_wmem = 4096 16384 ${currentBdpBytes}
-net.ipv4.tcp_rmem = 4096 87380 ${currentBdpBytes}`;
+net.core.wmem_max = ${currentBufferBytes}
+net.core.rmem_max = ${currentBufferBytes}
+net.ipv4.tcp_wmem = 4096 16384 ${currentBufferBytes}
+net.ipv4.tcp_rmem = 4096 87380 ${currentBufferBytes}`;
     }
 
     function buildScript() {
