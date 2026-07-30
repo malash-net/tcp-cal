@@ -84,6 +84,8 @@
       <h3>建议的 TCP 设置：</h3>
       <p>net.core.default_qdisc = fq</p>
       <p>net.ipv4.tcp_congestion_control = bbr</p>
+      <p>net.core.wmem_max = <span id="recommendedWmemMax"></span></p>
+      <p>net.core.rmem_max = <span id="recommendedRmemMax"></span></p>
       <p>net.ipv4.tcp_wmem="4096 16384 <span id="recommendedWmem"></span>"</p>
       <p>net.ipv4.tcp_rmem="4096 87380 <span id="recommendedRmem"></span>"</p>
       <div id="script">
@@ -120,6 +122,8 @@
       document.getElementById('bdpBytes').textContent = currentBdpBytes;
       document.getElementById('recommendedWmem').textContent = currentBdpBytes;
       document.getElementById('recommendedRmem').textContent = currentBdpBytes;
+      document.getElementById('recommendedWmemMax').textContent = currentBdpBytes;
+      document.getElementById('recommendedRmemMax').textContent = currentBdpBytes;
       document.getElementById('scriptContent').textContent = buildScript();
       document.getElementById('result').style.display = 'block';
     }
@@ -128,6 +132,8 @@
       return `#!/bin/bash
 echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
+echo "net.core.wmem_max = ${currentBdpBytes}" >> /etc/sysctl.conf
+echo "net.core.rmem_max = ${currentBdpBytes}" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_wmem = 4096 16384 ${currentBdpBytes}" >> /etc/sysctl.conf
 echo "net.ipv4.tcp_rmem = 4096 87380 ${currentBdpBytes}" >> /etc/sysctl.conf
 sysctl -p`;
